@@ -229,115 +229,104 @@
 
   // -------------------
   // Упражнение 2: Выбор правильной формы с учетом добавления 'e' в окончании
-  function show2() {
-    const v = verbs[index2];
-    const stem = v[1].slice(0, -2); // Удаляем 'en' в конце инфинитива
-    const pronoun = v[0];
-    const verb = v[1];
+function show2() {
+  const v = verbs[index2];
+  const pronoun = v[0];
+  const infinitiv = v[1]; // глагол в инфинитиве из скобок
+  
+  document.getElementById("prompt2").innerText = `${pronoun} ____ (${infinitiv})`;
 
-    document.getElementById("prompt2").innerText = `${pronoun} ____ (${verb})`;
+  // Получаем правильную форму спряжения глагола infinitiv для pronoun
+  const correct = conjugate(infinitiv, pronoun);
 
-    // Генерируем варианты
-    // Правильная форма из данных (v[2]) есть
-    const correct = v[2];
+  // Генерируем 2 неправильных варианта
+  const wrongOptions = generateWrongForms(infinitiv, pronoun);
 
-    // Создаем варианты с разными окончаниями
-    let options = [];
+  // Собираем варианты и перемешиваем
+  const options = shuffle([correct, ...wrongOptions]);
 
-    // Вариант без 'e' (если можно)
-    let withoutE = "";
-    // Варианты окончаний для немецких глаголов (с учетом добавления 'e')
-    // Для простоты возьмем эти окончания:
-    // t, st, et (добавляем e перед t или st если нужно)
+  // Показываем кнопки с вариантами
+  const optDiv = document.getElementById("options2");
+  optDiv.innerHTML = "";
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => check2(opt, correct);
+    optDiv.appendChild(btn);
+  });
+  document.getElementById("feedback2").innerText = "";
+}
 
-    // Логика выбора вариантов (учитываем типичные окончания):
-
-    // Формируем варианты для второго лица единственного числа (du) для примера:
-    if (pronoun === "du") {
-      // варианты для du: arbeitest, arbeitst, arbeitet (неправильно)
-      options = [
-        stem + "test",  // правильный с e: arbeitest
-        stem + "tst",   // неправильный, с неправильным окончанием
-        stem + "tet"    // неправильный вариант
-      ];
-    }
-    // Для остальных местоимений - берём правильную форму + 2 похожих варианта
-    else {
-      options = [
-        correct,
-        // 2 варианта с легкой ошибкой - удаление 'e' или лишняя буква
-        correct.replace(/e/, "") + "t",
-        correct + "t"
-      ];
-    }
-
-    // Если pronoun не du, а correct заканчивается на et - мы можем сгенерировать варианты для остальных:
-
-    // Но чтобы не усложнять, сделаем так:
-
-    if (pronoun !== "du") {
-      options = generateOptions(pronoun, stem, correct);
-    }
-
-    options = shuffle(options);
-
-    const optDiv = document.getElementById("options2");
-    optDiv.innerHTML = "";
-    options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.innerText = opt;
-      btn.onclick = () => check2(opt, correct);
-      optDiv.appendChild(btn);
-    });
-    document.getElementById("feedback2").innerText = "";
+// Функция спряжения инфинитива для данного местоимения (очень упрощённо, только для правильных глаголов 1-го спряжения)
+function conjugate(infinitiv, pronoun) {
+  const stem = infinitiv.slice(0, -2); // удаляем "en"
+  switch(pronoun) {
+    case "ich":
+      return stem + "e";
+    case "du":
+      // добавляем 'e' если основа заканчивается на t или d (простое правило)
+      if (stem.endsWith("t") || stem.endsWith("d")) return stem + "est";
+      else return stem + "st";
+    case "er/sie/es":
+      return stem + "t";
+    case "wir":
+    case "sie/Sie":
+      return infinitiv;
+    case "ihr":
+      if (stem.endsWith("t") || stem.endsWith("d")) return stem + "et";
+      else return stem + "t";
+    default:
+      return infinitiv;
   }
+}
 
-  function generateOptions(pronoun, stem, correct) {
-    // Простая генерация вариантов для ich, er/sie/es, wir, ihr, sie/Sie
-    // ich: stem + e (rechne)
-    // er/sie/es: stem + t (rechnet)
-    // wir, sie/Sie: инфинитив (rechnen)
-    // ihr: stem + t (rechnet)
-
-    // Определим правильную форму в зависимости от pronoun
-    let correctForm = "";
-    switch(pronoun) {
-      case "ich":
-        correctForm = stem + "e";
-        break;
-      case "er/sie/es":
-        correctForm = stem + "t";
-        break;
-      case "wir":
-      case "sie/Sie":
-        correctForm = stem + "en";
-        break;
-      case "ihr":
-        correctForm = stem + "t";
-        break;
-      default:
-        correctForm = stem + "en";
-    }
-
-    // Несколько вариантов с ошибками
-    let wrong1 = stem + "et";
-    let wrong2 = stem + "st";
-
-    // Возвращаем массив вариантов (правильный и два неправильных)
-    return shuffle([correctForm, wrong1, wrong2]);
+// Генерация двух неправильных вариантов для выбора
+function generateWrongForms(infinitiv, pronoun) {
+  const stem = infinitiv.slice(0, -2);
+  let wrong1 = "", wrong2 = "";
+  switch(pronoun) {
+    case "ich":
+      // неправильные: без 'e' или с лишним 't'
+      wrong1 = stem;
+      wrong2 = stem + "te";
+      break;
+    case "du":
+      // неправильные: просто stem + 't', или stem + 'est' когда не надо
+      wrong1 = stem + "t";
+      wrong2 = stem + "et";
+      break;
+    case "er/sie/es":
+      wrong1 = stem;
+      wrong2 = stem + "en";
+      break;
+    case "wir":
+    case "sie/Sie":
+      wrong1 = stem + "t";
+      wrong2 = stem + "e";
+      break;
+    case "ihr":
+      wrong1 = stem + "et";
+      wrong2 = stem + "st";
+      break;
+    default:
+      wrong1 = stem + "t";
+      wrong2 = stem + "e";
   }
+  return [wrong1, wrong2];
+}
 
-  function check2(selected, correct) {
-    const fb = document.getElementById("feedback2");
-    if (selected === correct) {
-      score2++;
-      fb.innerText = "✅ Правильно!";
-      fb.className = "feedback correct";
-    } else {
-      fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = "feedback wrong";
-    }
+function check2(selected, correct) {
+  const fb = document.getElementById("feedback2");
+  if (selected === correct) {
+    score2++;
+    fb.innerText = "✅ Правильно!";
+    fb.className = "feedback correct";
+  } else {
+    fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+    fb.className = "feedback wrong";
   }
+}
+
   function next2() {
     index2 = (index2 + 1) % verbs.length;
     show2();
