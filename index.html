@@ -59,6 +59,19 @@
       display: block;
       margin: 0 auto 20px;
     }
+    .progress-container {
+      width: 100%;
+      background-color: #eee;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 20px;
+      background-color: #4caf50;
+      border-radius: 5px;
+      width: 0%;
+      transition: width 0.3s;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +87,7 @@
 
   <div id="conjugation" class="exercise">
     <h2>1. Впиши форму глагола</h2>
+    <div class="progress-container"><div id="bar1" class="progress-bar"></div></div>
     <p id="prompt1" class="question"></p>
     <input type="text" id="input1" autocomplete="off" />
     <button onclick="check1()">Проверить</button>
@@ -85,6 +99,7 @@
 
   <div id="choice" class="exercise">
     <h2>2. Выбери правильную форму</h2>
+    <div class="progress-container"><div id="bar2" class="progress-bar"></div></div>
     <p id="prompt2" class="question"></p>
     <div id="options2"></div>
     <p id="feedback2" class="feedback"></p>
@@ -95,6 +110,7 @@
 
   <div id="rutoinf" class="exercise">
     <h2>3. Русский → Infinitiv</h2>
+    <div class="progress-container"><div id="bar3" class="progress-bar"></div></div>
     <p id="prompt3" class="question"></p>
     <input type="text" id="input3" autocomplete="off" />
     <button onclick="check3()">Проверить</button>
@@ -111,39 +127,39 @@
   </div>
 
   <script>
-    const baseVerbs = [
+    const verbs = shuffle([
       ["ich", "antworten", "antworte"],
       ["du", "arbeiten", "arbeitest"],
       ["er/sie/es", "atmen", "atmet"],
       ["wir", "begegnen", "begegnen"],
       ["ihr", "beobachten", "beobachtet"],
       ["sie/Sie", "bilden", "bilden"],
-      ["ich", "bitten", "bitte"],
-      ["du", "finden", "findest"],
-      ["er/sie/es", "gründen", "gründet"],
-      ["wir", "heiraten", "heiraten"],
-      ["ihr", "mieten", "mietet"],
-      ["sie/Sie", "öffnen", "öffnen"],
-      ["ich", "rechnen", "rechne"],
-      ["du", "reden", "redest"],
-      ["er/sie/es", "retten", "rettet"],
-      ["wir", "trocknen", "trocknen"],
-      ["ihr", "warten", "wartet"],
-      ["sie/Sie", "zeichnen", "zeichnen"]
-    ];
+      ["du", "bitten", "bittest"],
+      ["ich", "finden", "finde"],
+      ["wir", "gründen", "gründen"],
+      ["er", "heiraten", "heiratet"],
+      ["sie", "mieten", "mieten"],
+      ["ihr", "öffnen", "öffnet"],
+      ["du", "rechnen", "rechnest"],
+      ["wir", "reden", "reden"],
+      ["sie/Sie", "retten", "retten"],
+      ["du", "trocknen", "trocknest"],
+      ["ich", "warten", "warte"],
+      ["er", "zeichnen", "zeichnet"]
+    ]);
 
-    const baseInfs = [
+    const infs = shuffle([
       ["отвечать", "antworten"],
       ["работать", "arbeiten"],
       ["дышать", "atmen"],
-      ["встречать(ся)", "begegnen"],
+      ["встречать", "begegnen"],
       ["наблюдать", "beobachten"],
       ["образовывать", "bilden"],
       ["просить", "bitten"],
       ["находить", "finden"],
       ["основывать", "gründen"],
       ["жениться", "heiraten"],
-      ["снимать (квартиру)", "mieten"],
+      ["снимать", "mieten"],
       ["открывать", "öffnen"],
       ["считать", "rechnen"],
       ["разговаривать", "reden"],
@@ -151,18 +167,7 @@
       ["сушить", "trocknen"],
       ["ждать", "warten"],
       ["рисовать", "zeichnen"]
-    ];
-
-    let verbs = shuffle([...baseVerbs]);
-    let infs = shuffle([...baseInfs]);
-
-    function shuffle(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
+    ]);
 
     let index1 = 0, score1 = 0;
     function showExercise(id) {
@@ -179,6 +184,7 @@
       document.getElementById("prompt1").innerText = `${v[0]} ____ (${v[1]})`;
       document.getElementById("input1").value = "";
       document.getElementById("feedback1").innerText = "";
+      updateProgress("bar1", index1, verbs.length);
     }
 
     function check1() {
@@ -203,59 +209,26 @@
     function finish1() {
       document.getElementById("summary1").style.display = "block";
       document.getElementById("summary1").innerHTML =
-        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.`;
     }
 
     let index2 = 0, score2 = 0;
     function show2() {
       const v = verbs[index2];
-      const pronoun = v[0];
-      const infinitiv = v[1];
-      document.getElementById("prompt2").innerText = `${pronoun} ____ (${infinitiv})`;
       const correct = v[2];
-      const wrongOptions = generateWrongForms(infinitiv, pronoun);
-      const options = shuffle([correct, ...wrongOptions]);
+      const root = correct.slice(0, -2);
+      const opts = shuffle([correct, root + "et", root + "st"]);
+      document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
       const optDiv = document.getElementById("options2");
       optDiv.innerHTML = "";
-      options.forEach(opt => {
+      opts.forEach(opt => {
         const btn = document.createElement("button");
         btn.innerText = opt;
         btn.onclick = () => check2(opt, correct);
         optDiv.appendChild(btn);
       });
       document.getElementById("feedback2").innerText = "";
-    }
-
-    function generateWrongForms(infinitiv, pronoun) {
-      const stem = infinitiv.slice(0, -2);
-      let wrong1 = "", wrong2 = "";
-      switch(pronoun) {
-        case "ich":
-          wrong1 = stem;
-          wrong2 = stem + "te";
-          break;
-        case "du":
-          wrong1 = stem + "t";
-          wrong2 = stem + "et";
-          break;
-        case "er/sie/es":
-          wrong1 = stem;
-          wrong2 = stem + "en";
-          break;
-        case "wir":
-        case "sie/Sie":
-          wrong1 = stem + "t";
-          wrong2 = stem + "e";
-          break;
-        case "ihr":
-          wrong1 = stem + "et";
-          wrong2 = stem + "st";
-          break;
-        default:
-          wrong1 = stem + "t";
-          wrong2 = stem + "e";
-      }
-      return [wrong1, wrong2];
+      updateProgress("bar2", index2, verbs.length);
     }
 
     function check2(sel, correct) {
@@ -278,7 +251,7 @@
     function finish2() {
       document.getElementById("summary2").style.display = "block";
       document.getElementById("summary2").innerHTML =
-        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.`;
     }
 
     let index3 = 0, score3 = 0;
@@ -286,6 +259,7 @@
       document.getElementById("prompt3").innerText = infs[index3][0];
       document.getElementById("input3").value = "";
       document.getElementById("feedback3").innerText = "";
+      updateProgress("bar3", index3, infs.length);
     }
 
     function check3() {
@@ -310,7 +284,7 @@
     function finish3() {
       document.getElementById("summary3").style.display = "block";
       document.getElementById("summary3").innerHTML =
-        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score3}</strong> из ${infs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score3}</strong> из ${infs.length}.`;
     }
 
     let cardIndex = 0;
@@ -327,6 +301,19 @@
     function nextCard() {
       cardIndex = (cardIndex + 1) % infs.length;
       showCard();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function updateProgress(barId, current, total) {
+      const percent = Math.round((current / total) * 100);
+      document.getElementById(barId).style.width = percent + '%';
     }
 
     showExercise('conjugation');
