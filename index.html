@@ -5,20 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verbtrainer A1 Zufall</title>
   <style>
-    /* ...остальной CSS как раньше... */
     body {
       font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 20px auto;
       padding: 10px;
-      text-align: center;
     }
     h1, h2 {
       text-align: center;
-    }
-    .flag {
-      font-size: 50px;
-      margin-bottom: 10px;
     }
     .menu {
       display: flex;
@@ -61,22 +55,15 @@
       padding: 10px;
       margin-top: 15px;
     }
-    #card {
-      font-size: 2em;
-      user-select: none;
-      cursor: pointer;
-      margin: 20px auto;
-      max-width: 400px;
-      border: 2px solid #ccc;
-      padding: 20px;
-      border-radius: 8px;
-      background: #fafafa;
+    img {
+      display: block;
+      margin: 0 auto 20px;
     }
   </style>
 </head>
 <body>
-  <div class="flag">🇩🇪</div>
   <h1>Verbtrainer A1: Neue Verben mit Zufallsreihenfolge</h1>
+  <img src="https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg" alt="Флаг Германии" width="150" />
 
   <div class="menu">
     <button onclick="showExercise('conjugation')">1. Спряжение (ввод)</button>
@@ -85,13 +72,10 @@
     <button onclick="showExercise('flashcards')">4. Флешкарты</button>
   </div>
 
-  <!-- Упражнения как в предыдущем коде (с сохранением id) -->
-
   <div id="conjugation" class="exercise">
     <h2>1. Впиши форму глагола</h2>
     <p id="prompt1" class="question"></p>
     <input type="text" id="input1" autocomplete="off" />
-    <br/>
     <button onclick="check1()">Проверить</button>
     <p id="feedback1" class="feedback"></p>
     <button onclick="next1()">Следующее</button>
@@ -100,9 +84,9 @@
   </div>
 
   <div id="choice" class="exercise">
-    <h2>2. Выбери правильную форму с правильным окончанием</h2>
+    <h2>2. Выбери правильную форму</h2>
     <p id="prompt2" class="question"></p>
-    <div id="options2" style="margin-bottom: 10px;"></div>
+    <div id="options2"></div>
     <p id="feedback2" class="feedback"></p>
     <button onclick="next2()">Следующее</button>
     <button onclick="finish2()">Завершить</button>
@@ -113,7 +97,6 @@
     <h2>3. Русский → Infinitiv</h2>
     <p id="prompt3" class="question"></p>
     <input type="text" id="input3" autocomplete="off" />
-    <br/>
     <button onclick="check3()">Проверить</button>
     <p id="feedback3" class="feedback"></p>
     <button onclick="next3()">Следующее</button>
@@ -127,242 +110,226 @@
     <button onclick="nextCard()">Следующая</button>
   </div>
 
-<script>
-  // Данные (оставляем как в предыдущем коде)
-  const baseVerbs = [
-    ["ich", "antworten", "antworte"],
-    ["du", "arbeiten", "arbeitest"],
-    ["er/sie/es", "atmen", "atmet"],
-    ["wir", "begegnen", "begegnen"],
-    ["ihr", "beobachten", "beobachtet"],
-    ["sie/Sie", "bilden", "bilden"],
-    ["ich", "bitten", "bitte"],
-    ["du", "finden", "findest"],
-    ["er", "gründen", "gründet"],
-    ["wir", "heiraten", "heiraten"],
-    ["ihr", "mieten", "mietet"],
-    ["sie/Sie", "öffnen", "öffnen"],
-    ["ich", "rechnen", "rechne"],
-    ["du", "reden", "redest"],
-    ["er/sie/es", "retten", "rettet"],
-    ["wir", "trocknen", "trocknen"],
-    ["ihr", "warten", "wartet"],
-    ["sie", "zeichnen", "zeichnen"]
-  ];
+  <script>
+    const baseVerbs = [
+      ["ich", "antworten", "antworte"],
+      ["du", "arbeiten", "arbeitest"],
+      ["er/sie/es", "atmen", "atmet"],
+      ["wir", "begegnen", "begegnen"],
+      ["ihr", "beobachten", "beobachtet"],
+      ["sie/Sie", "bilden", "bilden"],
+      ["ich", "bitten", "bitte"],
+      ["du", "finden", "findest"],
+      ["er/sie/es", "gründen", "gründet"],
+      ["wir", "heiraten", "heiraten"],
+      ["ihr", "mieten", "mietet"],
+      ["sie/Sie", "öffnen", "öffnen"],
+      ["ich", "rechnen", "rechne"],
+      ["du", "reden", "redest"],
+      ["er/sie/es", "retten", "rettet"],
+      ["wir", "trocknen", "trocknen"],
+      ["ihr", "warten", "wartet"],
+      ["sie/Sie", "zeichnen", "zeichnen"]
+    ];
 
-  const baseInfs = [
-    ["отвечать", "antworten"],
-    ["работать", "arbeiten"],
-    ["дышать", "atmen"],
-    ["встречать (случайно)", "begegnen"],
-    ["наблюдать", "beobachten"],
-    ["формировать", "bilden"],
-    ["просить", "bitten"],
-    ["находить", "finden"],
-    ["основывать", "gründen"],
-    ["жениться", "heiraten"],
-    ["арендовать", "mieten"],
-    ["открывать", "öffnen"],
-    ["считать / вычислять", "rechnen"],
-    ["разговаривать", "reden"],
-    ["спасать", "retten"],
-    ["сушить", "trocknen"],
-    ["ждать", "warten"],
-    ["рисовать", "zeichnen"]
-  ];
+    const baseInfs = [
+      ["отвечать", "antworten"],
+      ["работать", "arbeiten"],
+      ["дышать", "atmen"],
+      ["встречать(ся)", "begegnen"],
+      ["наблюдать", "beobachten"],
+      ["образовывать", "bilden"],
+      ["просить", "bitten"],
+      ["находить", "finden"],
+      ["основывать", "gründen"],
+      ["жениться", "heiraten"],
+      ["снимать (квартиру)", "mieten"],
+      ["открывать", "öffnen"],
+      ["считать", "rechnen"],
+      ["разговаривать", "reden"],
+      ["спасать", "retten"],
+      ["сушить", "trocknen"],
+      ["ждать", "warten"],
+      ["рисовать", "zeichnen"]
+    ];
 
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    let verbs = shuffle([...baseVerbs]);
+    let infs = shuffle([...baseInfs]);
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
-    return arr;
-  }
 
-  let verbs = shuffle([...baseVerbs]);
-  let infs = shuffle([...baseInfs]);
-
-  let index1 = 0, score1 = 0;
-  let index2 = 0, score2 = 0;
-  let index3 = 0, score3 = 0;
-  let cardIndex = 0;
-  let flipped = false;
-
-  function showExercise(id) {
-    document.querySelectorAll(".exercise").forEach(e => e.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    if (id === "conjugation") show1();
-    if (id === "choice") show2();
-    if (id === "rutoinf") show3();
-    if (id === "flashcards") showCard();
-  }
-
-  // Упражнение 1 — как раньше (не меняем)
-  function show1() {
-    const v = verbs[index1];
-    document.getElementById("prompt1").innerText = `${v[0]} ____ (${v[1]})`;
-    document.getElementById("input1").value = "";
-    document.getElementById("feedback1").innerText = "";
-  }
-  function check1() {
-    const val = document.getElementById("input1").value.trim().toLowerCase();
-    const correct = verbs[index1][2].toLowerCase();
-    const fb = document.getElementById("feedback1");
-    if (val === correct) {
-      score1++;
-      fb.innerText = "✅ Правильно!";
-      fb.className = "feedback correct";
-    } else {
-      fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = "feedback wrong";
+    let index1 = 0, score1 = 0;
+    function showExercise(id) {
+      document.querySelectorAll(".exercise").forEach(e => e.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (id === "conjugation") show1();
+      if (id === "choice") show2();
+      if (id === "rutoinf") show3();
+      if (id === "flashcards") showCard();
     }
-  }
-  function next1() {
-    index1 = (index1 + 1) % verbs.length;
-    show1();
-  }
-  function finish1() {
-    document.getElementById("summary1").style.display = "block";
-    document.getElementById("summary1").innerHTML =
-      `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
-  }
 
-  // -------------------
-  // Упражнение 2: Выбор правильной формы с учетом добавления 'e' в окончании
-function show2() {
-  const v = verbs[index2];
-  const pronoun = v[0];
-  const infinitiv = v[1]; // глагол в инфинитиве из скобок
-  
-  document.getElementById("prompt2").innerText = `${pronoun} ____ (${infinitiv})`;
-
-  // Получаем правильную форму спряжения глагола infinitiv для pronoun
-  const correct = conjugate(infinitiv, pronoun);
-
-  // Генерируем 2 неправильных варианта
-  const wrongOptions = generateWrongForms(infinitiv, pronoun);
-
-  // Собираем варианты и перемешиваем
-  const options = shuffle([correct, ...wrongOptions]);
-
-  // Показываем кнопки с вариантами
-  const optDiv = document.getElementById("options2");
-  optDiv.innerHTML = "";
-  options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => check2(opt, correct);
-    optDiv.appendChild(btn);
-  });
-  document.getElementById("feedback2").innerText = "";
-}
-
-// Функция спряжения инфинитива для данного местоимения (очень упрощённо, только для правильных глаголов 1-го спряжения)
-function conjugate(infinitiv, pronoun) {
-  const stem = infinitiv.slice(0, -2); // удаляем "en"
-  switch(pronoun) {
-    case "ich":
-      return stem + "e";
-    case "du":
-      // добавляем 'e' если основа заканчивается на t или d (простое правило)
-      if (stem.endsWith("t") || stem.endsWith("d")) return stem + "est";
-      else return stem + "st";
-    case "er/sie/es":
-      return stem + "t";
-    case "wir":
-    case "sie/Sie":
-      return infinitiv;
-    case "ihr":
-      if (stem.endsWith("t") || stem.endsWith("d")) return stem + "et";
-      else return stem + "t";
-    default:
-      return infinitiv;
-  }
-}
-
-// Генерация двух неправильных вариантов для выбора
-function generateWrongForms(infinitiv, pronoun) {
-  const stem = infinitiv.slice(0, -2);
-  let wrong1 = "", wrong2 = "";
-  switch(pronoun) {
-    case "ich":
-      // неправильные: без 'e' или с лишним 't'
-      wrong1 = stem;
-      wrong2 = stem + "te";
-      break;
-    case "du":
-      // неправильные: просто stem + 't', или stem + 'est' когда не надо
-      wrong1 = stem + "t";
-      wrong2 = stem + "et";
-      break;
-    case "er/sie/es":
-      wrong1 = stem;
-      wrong2 = stem + "en";
-      break;
-    case "wir":
-    case "sie/Sie":
-      wrong1 = stem + "t";
-      wrong2 = stem + "e";
-      break;
-    case "ihr":
-      wrong1 = stem + "et";
-      wrong2 = stem + "st";
-      break;
-    default:
-      wrong1 = stem + "t";
-      wrong2 = stem + "e";
-  }
-  return [wrong1, wrong2];
-}
-
-function check2(selected, correct) {
-  const fb = document.getElementById("feedback2");
-  if (selected === correct) {
-    score2++;
-    fb.innerText = "✅ Правильно!";
-    fb.className = "feedback correct";
-  } else {
-    fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
-    fb.className = "feedback wrong";
-  }
-}
-
-  function next2() {
-    index2 = (index2 + 1) % verbs.length;
-    show2();
-  }
-  function finish2() {
-    document.getElementById("summary2").style.display = "block";
-    document.getElementById("summary2").innerHTML =
-      `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
-  }
-
-  // -------------------
-  // Упражнение 3 и 4 — как в предыдущем коде (не меняем)
-
-  function show3() {
-    const pair = infs[index3];
-    document.getElementById("prompt3").innerText = pair[0];
-    document.getElementById("input3").value = "";
-    document.getElementById("feedback3").innerText = "";
-  }
-  function check3() {
-    const val = document.getElementById("input3").value.trim().toLowerCase();
-    const correct = infs[index3][1].toLowerCase();
-    const fb = document.getElementById("feedback3");
-    if (val === correct) {
-      score3++;
-      fb.innerText = "✅ Правильно!";
-      fb.className = "feedback correct";
-    } else {
-      fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = "feedback wrong";
+    function show1() {
+      const v = verbs[index1];
+      document.getElementById("prompt1").innerText = `${v[0]} ____ (${v[1]})`;
+      document.getElementById("input1").value = "";
+      document.getElementById("feedback1").innerText = "";
     }
-  }
-  function next3() {
-    index3 = (index3 + 1) % infs.length;
-    show3();
-  }
-  function finish3() {
-    document.getElementById("summary3").style.display = "block";
-    document.getElement
+
+    function check1() {
+      const val = document.getElementById("input1").value.trim().toLowerCase();
+      const correct = verbs[index1][2].toLowerCase();
+      const fb = document.getElementById("feedback1");
+      if (val === correct) {
+        score1++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
+    }
+
+    function next1() {
+      index1 = (index1 + 1) % verbs.length;
+      show1();
+    }
+
+    function finish1() {
+      document.getElementById("summary1").style.display = "block";
+      document.getElementById("summary1").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+    }
+
+    let index2 = 0, score2 = 0;
+    function show2() {
+      const v = verbs[index2];
+      const pronoun = v[0];
+      const infinitiv = v[1];
+      document.getElementById("prompt2").innerText = `${pronoun} ____ (${infinitiv})`;
+      const correct = v[2];
+      const wrongOptions = generateWrongForms(infinitiv, pronoun);
+      const options = shuffle([correct, ...wrongOptions]);
+      const optDiv = document.getElementById("options2");
+      optDiv.innerHTML = "";
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => check2(opt, correct);
+        optDiv.appendChild(btn);
+      });
+      document.getElementById("feedback2").innerText = "";
+    }
+
+    function generateWrongForms(infinitiv, pronoun) {
+      const stem = infinitiv.slice(0, -2);
+      let wrong1 = "", wrong2 = "";
+      switch(pronoun) {
+        case "ich":
+          wrong1 = stem;
+          wrong2 = stem + "te";
+          break;
+        case "du":
+          wrong1 = stem + "t";
+          wrong2 = stem + "et";
+          break;
+        case "er/sie/es":
+          wrong1 = stem;
+          wrong2 = stem + "en";
+          break;
+        case "wir":
+        case "sie/Sie":
+          wrong1 = stem + "t";
+          wrong2 = stem + "e";
+          break;
+        case "ihr":
+          wrong1 = stem + "et";
+          wrong2 = stem + "st";
+          break;
+        default:
+          wrong1 = stem + "t";
+          wrong2 = stem + "e";
+      }
+      return [wrong1, wrong2];
+    }
+
+    function check2(sel, correct) {
+      const fb = document.getElementById("feedback2");
+      if (sel === correct) {
+        score2++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
+    }
+
+    function next2() {
+      index2 = (index2 + 1) % verbs.length;
+      show2();
+    }
+
+    function finish2() {
+      document.getElementById("summary2").style.display = "block";
+      document.getElementById("summary2").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+    }
+
+    let index3 = 0, score3 = 0;
+    function show3() {
+      document.getElementById("prompt3").innerText = infs[index3][0];
+      document.getElementById("input3").value = "";
+      document.getElementById("feedback3").innerText = "";
+    }
+
+    function check3() {
+      const val = document.getElementById("input3").value.trim().toLowerCase();
+      const correct = infs[index3][1].toLowerCase();
+      const fb = document.getElementById("feedback3");
+      if (val === correct) {
+        score3++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
+    }
+
+    function next3() {
+      index3 = (index3 + 1) % infs.length;
+      show3();
+    }
+
+    function finish3() {
+      document.getElementById("summary3").style.display = "block";
+      document.getElementById("summary3").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score3}</strong> из ${infs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+    }
+
+    let cardIndex = 0;
+    let flipped = false;
+    function showCard() {
+      flipped = false;
+      document.getElementById("card").innerText = infs[cardIndex][0];
+    }
+    function flipCard() {
+      const card = document.getElementById("card");
+      flipped = !flipped;
+      card.innerText = flipped ? infs[cardIndex][1] : infs[cardIndex][0];
+    }
+    function nextCard() {
+      cardIndex = (cardIndex + 1) % infs.length;
+      showCard();
+    }
+
+    showExercise('conjugation');
+  </script>
+</body>
+</html>
