@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Verbtrainer A1 Zufall</title>
   <style>
+    /* ...остальной CSS как раньше... */
     body {
       font-family: Arial, sans-serif;
       max-width: 800px;
@@ -84,6 +85,8 @@
     <button onclick="showExercise('flashcards')">4. Флешкарты</button>
   </div>
 
+  <!-- Упражнения как в предыдущем коде (с сохранением id) -->
+
   <div id="conjugation" class="exercise">
     <h2>1. Впиши форму глагола</h2>
     <p id="prompt1" class="question"></p>
@@ -97,7 +100,7 @@
   </div>
 
   <div id="choice" class="exercise">
-    <h2>2. Выбери правильную форму</h2>
+    <h2>2. Выбери правильную форму с правильным окончанием</h2>
     <p id="prompt2" class="question"></p>
     <div id="options2" style="margin-bottom: 10px;"></div>
     <p id="feedback2" class="feedback"></p>
@@ -125,7 +128,7 @@
   </div>
 
 <script>
-  // Список глаголов с формами спряжения
+  // Данные (оставляем как в предыдущем коде)
   const baseVerbs = [
     ["ich", "antworten", "antworte"],
     ["du", "arbeiten", "arbeitest"],
@@ -147,7 +150,6 @@
     ["sie", "zeichnen", "zeichnen"]
   ];
 
-  // Слова для перевода русский → инфинитив
   const baseInfs = [
     ["отвечать", "antworten"],
     ["работать", "arbeiten"],
@@ -169,11 +171,6 @@
     ["рисовать", "zeichnen"]
   ];
 
-  // Перемешиваем копии списков, чтобы не менять исходные
-  let verbs = shuffle([...baseVerbs]);
-  let infs = shuffle([...baseInfs]);
-
-  // Функция перемешивания массива (Fisher-Yates)
   function shuffle(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -181,6 +178,9 @@
     }
     return arr;
   }
+
+  let verbs = shuffle([...baseVerbs]);
+  let infs = shuffle([...baseInfs]);
 
   let index1 = 0, score1 = 0;
   let index2 = 0, score2 = 0;
@@ -197,7 +197,7 @@
     if (id === "flashcards") showCard();
   }
 
-  // 1. Впиши форму глагола
+  // Упражнение 1 — как раньше (не меняем)
   function show1() {
     const v = verbs[index1];
     document.getElementById("prompt1").innerText = `${v[0]} ____ (${v[1]})`;
@@ -227,18 +227,60 @@
       `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
   }
 
-  // 2. Выбор правильной формы (кнопки)
+  // -------------------
+  // Упражнение 2: Выбор правильной формы с учетом добавления 'e' в окончании
   function show2() {
     const v = verbs[index2];
-    document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
+    const stem = v[1].slice(0, -2); // Удаляем 'en' в конце инфинитива
+    const pronoun = v[0];
+    const verb = v[1];
+
+    document.getElementById("prompt2").innerText = `${pronoun} ____ (${verb})`;
+
+    // Генерируем варианты
+    // Правильная форма из данных (v[2]) есть
     const correct = v[2];
-    // Для вариантов возьмём правильный и 2 случайных неправильных (если есть)
-    let options = [correct];
-    while (options.length < 3) {
-      const rand = verbs[Math.floor(Math.random() * verbs.length)][2];
-      if (!options.includes(rand)) options.push(rand);
+
+    // Создаем варианты с разными окончаниями
+    let options = [];
+
+    // Вариант без 'e' (если можно)
+    let withoutE = "";
+    // Варианты окончаний для немецких глаголов (с учетом добавления 'e')
+    // Для простоты возьмем эти окончания:
+    // t, st, et (добавляем e перед t или st если нужно)
+
+    // Логика выбора вариантов (учитываем типичные окончания):
+
+    // Формируем варианты для второго лица единственного числа (du) для примера:
+    if (pronoun === "du") {
+      // варианты для du: arbeitest, arbeitst, arbeitet (неправильно)
+      options = [
+        stem + "test",  // правильный с e: arbeitest
+        stem + "tst",   // неправильный, с неправильным окончанием
+        stem + "tet"    // неправильный вариант
+      ];
     }
+    // Для остальных местоимений - берём правильную форму + 2 похожих варианта
+    else {
+      options = [
+        correct,
+        // 2 варианта с легкой ошибкой - удаление 'e' или лишняя буква
+        correct.replace(/e/, "") + "t",
+        correct + "t"
+      ];
+    }
+
+    // Если pronoun не du, а correct заканчивается на et - мы можем сгенерировать варианты для остальных:
+
+    // Но чтобы не усложнять, сделаем так:
+
+    if (pronoun !== "du") {
+      options = generateOptions(pronoun, stem, correct);
+    }
+
     options = shuffle(options);
+
     const optDiv = document.getElementById("options2");
     optDiv.innerHTML = "";
     options.forEach(opt => {
@@ -249,6 +291,42 @@
     });
     document.getElementById("feedback2").innerText = "";
   }
+
+  function generateOptions(pronoun, stem, correct) {
+    // Простая генерация вариантов для ich, er/sie/es, wir, ihr, sie/Sie
+    // ich: stem + e (rechne)
+    // er/sie/es: stem + t (rechnet)
+    // wir, sie/Sie: инфинитив (rechnen)
+    // ihr: stem + t (rechnet)
+
+    // Определим правильную форму в зависимости от pronoun
+    let correctForm = "";
+    switch(pronoun) {
+      case "ich":
+        correctForm = stem + "e";
+        break;
+      case "er/sie/es":
+        correctForm = stem + "t";
+        break;
+      case "wir":
+      case "sie/Sie":
+        correctForm = stem + "en";
+        break;
+      case "ihr":
+        correctForm = stem + "t";
+        break;
+      default:
+        correctForm = stem + "en";
+    }
+
+    // Несколько вариантов с ошибками
+    let wrong1 = stem + "et";
+    let wrong2 = stem + "st";
+
+    // Возвращаем массив вариантов (правильный и два неправильных)
+    return shuffle([correctForm, wrong1, wrong2]);
+  }
+
   function check2(selected, correct) {
     const fb = document.getElementById("feedback2");
     if (selected === correct) {
@@ -270,7 +348,9 @@
       `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
   }
 
-  // 3. Русский → Infinitiv (ввод)
+  // -------------------
+  // Упражнение 3 и 4 — как в предыдущем коде (не меняем)
+
   function show3() {
     const pair = infs[index3];
     document.getElementById("prompt3").innerText = pair[0];
@@ -296,27 +376,4 @@
   }
   function finish3() {
     document.getElementById("summary3").style.display = "block";
-    document.getElementById("summary3").innerHTML =
-      `Вы завершили упражнение.<br>Правильных ответов: <strong>${score3}</strong> из ${infs.length}.<br>Сделайте скриншот и отправьте учителю.`;
-  }
-
-  // 4. Флешкарты
-  function showCard() {
-    flipped = false;
-    document.getElementById("card").innerText = infs[cardIndex][0];
-  }
-  function flipCard() {
-    const card = document.getElementById("card");
-    flipped = !flipped;
-    card.innerText = flipped ? infs[cardIndex][1] : infs[cardIndex][0];
-  }
-  function nextCard() {
-    cardIndex = (cardIndex + 1) % infs.length;
-    showCard();
-  }
-
-  // При загрузке показываем первое упражнение
-  showExercise('conjugation');
-</script>
-</body>
-</html>
+    document.getElement
