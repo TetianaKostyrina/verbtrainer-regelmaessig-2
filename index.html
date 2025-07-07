@@ -213,23 +213,35 @@
     }
 
     let index2 = 0, score2 = 0;
-    function show2() {
-      const v = verbs[index2];
-      const correct = v[2];
-      const root = correct.slice(0, -2);
-      const opts = shuffle([correct, root + "et", root + "st"]);
-      document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
-      const optDiv = document.getElementById("options2");
-      optDiv.innerHTML = "";
-      opts.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.innerText = opt;
-        btn.onclick = () => check2(opt, correct);
-        optDiv.appendChild(btn);
-      });
-      document.getElementById("feedback2").innerText = "";
-      updateProgress("bar2", index2, verbs.length);
-    }
+   function show2() {
+  const v = verbs[index2];
+  const correct = v[2];
+
+  // Формируем 2 ложных варианта: один без -e, один с неверным окончанием
+  let root = v[1].slice(0, -2); // Infinitiv без -en
+  let wrong1 = root + "st";
+  let wrong2 = root + "et";
+
+  // Если одно из неверных совпадает с правильным — меняем его
+  if (wrong1 === correct) wrong1 = root + "es";
+  if (wrong2 === correct || wrong2 === wrong1) wrong2 = root + "test";
+
+  const opts = shuffle([correct, wrong1, wrong2]);
+
+  document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
+  const optDiv = document.getElementById("options2");
+  optDiv.innerHTML = "";
+  opts.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => check2(opt, correct);
+    optDiv.appendChild(btn);
+  });
+
+  document.getElementById("feedback2").innerText = "";
+  updateProgress("bar2", index2, verbs.length);
+}
+
 
     function check2(sel, correct) {
       const fb = document.getElementById("feedback2");
