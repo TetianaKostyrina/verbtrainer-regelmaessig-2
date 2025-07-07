@@ -213,22 +213,32 @@
     }
 
     let index2 = 0, score2 = 0;
-   function show2() {
+  function show2() {
   const v = verbs[index2];
   const correct = v[2];
 
-  // Формируем 2 ложных варианта: один без -e, один с неверным окончанием
-  let root = v[1].slice(0, -2); // Infinitiv без -en
+  // Корень инфинитива
+  const inf = v[1];
+  const root = inf.slice(0, -2);
+
+  // Возможные неправильные формы (но не совпадающие с правильной)
   let wrong1 = root + "st";
   let wrong2 = root + "et";
 
-  // Если одно из неверных совпадает с правильным — меняем его
-  if (wrong1 === correct) wrong1 = root + "es";
-  if (wrong2 === correct || wrong2 === wrong1) wrong2 = root + "test";
+  // Исключаем совпадения
+  const wrongForms = [];
+  if (wrong1 !== correct) wrongForms.push(wrong1);
+  if (wrong2 !== correct && wrong2 !== wrong1) wrongForms.push(wrong2);
 
-  const opts = shuffle([correct, wrong1, wrong2]);
+  // Если не хватает неправильных форм, добавляем искусственные
+  if (wrongForms.length < 2) {
+    wrongForms.push(root + "t", root + "test");
+  }
 
-  document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
+  // Собираем финальные опции
+  const opts = shuffle([correct, wrongForms[0], wrongForms[1]]);
+
+  document.getElementById("prompt2").innerText = `${v[0]} ____ (${inf})`;
   const optDiv = document.getElementById("options2");
   optDiv.innerHTML = "";
   opts.forEach(opt => {
@@ -241,6 +251,8 @@
   document.getElementById("feedback2").innerText = "";
   updateProgress("bar2", index2, verbs.length);
 }
+
+
 
 
     function check2(sel, correct) {
